@@ -10,6 +10,8 @@
 *******************************************************************************
 */
 
+const fs = require('fs');
+
 class Data { // define a class named data
   constructor(students, courses) {//constructor function to initialize the class instance and initialized the students and courses properties with the provided data in the file
       this.students = students; // Assign the students parameter to the students property
@@ -117,6 +119,14 @@ exports.getStudentsByCourse = (course) => {
 
         // Push new studentData to the students array
         dataCollection.students.push(studentData);
+
+        fs.writeFile('./data/students.json', JSON.stringify(dataCollection.students, null, 2), (err) => {
+          if (err) {
+              reject("Error saving student data");
+              return;
+          }
+          resolve(studentData);
+      });
 
         // Resolve the promise to indicate success
         resolve(studentData); // Resolve with the added student data
