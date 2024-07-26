@@ -9,77 +9,70 @@
 *
 *******************************************************************************
 */
-
 const fs = require('fs');
 
-class Data { // define a class named data
-  constructor(students, courses) {//constructor function to initialize the class instance and initialized the students and courses properties with the provided data in the file
-      this.students = students; // Assign the students parameter to the students property
-      this.courses = courses;// Assign the courses parameter to the courses property
+class Data { 
+  constructor(students, courses) {
+      this.students = students;
+      this.courses = courses;
   }
 }
 
-let dataCollection = null; // initialize the dataCollection variable as null
+let dataCollection = null; 
 
-exports.initialize = () => { // Define an arrow function named initialize and export it
-  return new Promise((resolve, reject) => { // Return a new Promise
-      const fs = require('fs'); // Importing  the built-in fs module for file operations
-
-      fs.readFile('./data/students.json', 'utf8', (err, studentsData) => { // Reading the students.json file
-        if (err) { // If there is an error reading the file then rejecting it
-            
-            reject("Unable to read students.json"); // Reject the Promise with an error message
-            return; // Exit the function
+exports.initialize = () => {
+  return new Promise((resolve, reject) => {
+      fs.readFile('./data/students.json', 'utf8', (err, studentsData) => {
+        if (err) {
+            reject("Unable to read students.json");
+            return;
         }
 
-        fs.readFile('./data/courses.json', 'utf8', (err, coursesData) => { //Reading the courses.json file
-            if (err) { // If there's an error reading the file then rejecting it
-               
-                reject("Unable to read courses.json"); //Rejecting the Promise with an error message
-                return; //Exit the function
+        fs.readFile('./data/courses.json', 'utf8', (err, coursesData) => {
+            if (err) {
+                reject("Unable to read courses.json");
+                return;
             }
 
-            //Parse the JSON data from the files
-            const students = JSON.parse(studentsData); //Parse the studentsData JSON string into a javaScript object
-            const courses = JSON.parse(coursesData); //Parse the coursesData JSON string into a javaScript object
+            const students = JSON.parse(studentsData);
+            const courses = JSON.parse(coursesData);
 
-            dataCollection = new Data(students, courses); //Creating a new data instance with the parsed students and courses data
-            resolve(); // Resolve the promise if both files are read successfully
+            dataCollection = new Data(students, courses);
+            resolve();
         });
     });
 });
 };
 
-exports.getAllStudents = () => { //defining an arrow function named getAllStudents and export it
-return new Promise((resolve, reject) => { //return a new promise
-    if (dataCollection.students.length === 0) { //If there are no students then rejecting it
-        
-        reject("No results returned"); //reject the promise with an error message
-    } else {
-        resolve(dataCollection.students); //Resolve the promise with the students data
-    }
-});
+exports.getAllStudents = () => {
+    return new Promise((resolve, reject) => {
+        if (dataCollection.students.length === 0) {
+            reject("No results returned");
+        } else {
+            resolve(dataCollection.students);
+        }
+    });
 };
 
-exports.getTAs = () => { //Define an arrow function named getTAs and export it
-return new Promise((resolve, reject) => { //return a new promise
-    const tas = dataCollection.students.filter(student => student.TA); //filter the students array to get only the students where TA is true
-    if (tas.length === 0) { //If there are no TAs then rejecting it
-        reject("No results returned"); //reject the romise with an error message
-    } else {
-        resolve(tas); //resolve the promise with the tas array
-    }
-});
+exports.getTAs = () => {
+    return new Promise((resolve, reject) => {
+        const tas = dataCollection.students.filter(student => student.TA);
+        if (tas.length === 0) {
+            reject("No results returned");
+        } else {
+            resolve(tas);
+        }
+    });
 };
 
-exports.getCourses = () => { //Define an arrow function named getCourses and export it
-return new Promise((resolve, reject) => { //return a new promise
-    if (dataCollection.courses.length === 0) { //If there are no courses then rejecting it
-        reject("No results returned"); //reject the promise with an error message
-    } else {
-        resolve(dataCollection.courses); // resolve the Promise with the courses data
-    }
-});
+exports.getCourses = () => {
+    return new Promise((resolve, reject) => {
+        if (dataCollection.courses.length === 0) {
+            reject("No results returned");
+        } else {
+            resolve(dataCollection.courses);
+        }
+    });
 };
 
 exports.getStudentsByCourse = (course) => {
@@ -91,9 +84,9 @@ exports.getStudentsByCourse = (course) => {
         resolve(studentsByCourse);
       }
     });
-  };
-  
-  exports.getStudentByNum = (num) => {
+};
+
+exports.getStudentByNum = (num) => {
     return new Promise((resolve, reject) => {
       const student = dataCollection.students.find(student => student.studentNum === num);
       if (!student) {
@@ -102,22 +95,30 @@ exports.getStudentsByCourse = (course) => {
         resolve(student);
       }
     });
-  };
+};
 
-  
-  exports.addStudent = (studentData) => {
+exports.getCourseById = (id) => {
     return new Promise((resolve, reject) => {
-        // Ensure TA property is set to false if undefined
+      const course = dataCollection.courses.find(course => course.courseId === parseInt(id));
+      if (!course) {
+        reject("query returned 0 results");
+      } else {
+        resolve(course);
+      }
+    });
+};
+
+// Add student
+exports.addStudent = (studentData) => {
+    return new Promise((resolve, reject) => {
         if (studentData.TA === undefined) {
             studentData.TA = false;
         } else {
             studentData.TA = true;
         }
 
-        // Set studentNum property based on current array length + 1
         studentData.studentNum = dataCollection.students.length + 1;
 
-        // Push new studentData to the students array
         dataCollection.students.push(studentData);
 
         fs.writeFile('./data/students.json', JSON.stringify(dataCollection.students, null, 2), (err) => {
@@ -127,8 +128,35 @@ exports.getStudentsByCourse = (course) => {
           }
           resolve(studentData);
       });
-
-        // Resolve the promise to indicate success
-        resolve(studentData); // Resolve with the added student data
     });
-}
+};
+
+// Update student
+exports.updateStudent = (studentData) => {
+    return new Promise((resolve, reject) => {
+        // Find the index of the student to update
+        const index = dataCollection.students.findIndex(student => student.studentNum === parseInt(studentData.studentNum));
+        
+        if (index === -1) {
+            reject("Student not found");
+            return;
+        }
+
+        // Update student details
+        dataCollection.students[index] = {
+            ...dataCollection.students[index], 
+            ...studentData,
+            TA: studentData.TA === 'on' ? true : false // Convert checkbox value
+        };
+
+        // Save updated student data
+        fs.writeFile('./data/students.json', JSON.stringify(dataCollection.students, null, 2), (err) => {
+            if (err) {
+                reject("Error updating student data");
+                return;
+            }
+            resolve(); // Resolve without data
+        });
+    });
+};
+

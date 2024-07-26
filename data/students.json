@@ -240,7 +240,7 @@
     "course": 1
   },
   {
-    "studentNum": 21,
+    "studentNum": "21",
     "firstName": "Rozalie",
     "lastName": "Dron",
     "email": "rdronk@mySeneca.ca",
@@ -248,8 +248,8 @@
     "addressCity": "Toronto",
     "addressProvince": "ON",
     "TA": true,
-    "status": "Full Time",
-    "course": 6
+    "status": "Part Time",
+    "course": "2"
   },
   {
     "studentNum": 22,
@@ -3131,5 +3131,43 @@
     "course": "5",
     "TA": false,
     "studentNum": 261
+  },
+  {
+    "firstName": "Sachin",
+    "lastName": "Nagpal",
+    "email": "ssbisht@gmail.com",
+    "street": "35 Longevity Road",
+    "city": "Brampton",
+    "province": "Ontario",
+    "isTA": "on",
+    "enrollmentStatus": "Full Time",
+    "course": "5",
+    "TA": false,
+    "studentNum": 262
+  },
+  {
+    "firstName": "jsiuhcu",
+    "lastName": "jcnkcn",
+    "email": "acsbjbcajb@gmail.com",
+    "street": "cnjknvk",
+    "city": "hjbvjbd",
+    "province": "cbjhbbd",
+    "isTA": "on",
+    "enrollmentStatus": "Full Time",
+    "course": "1",
+    "TA": false,
+    "studentNum": 263
+  },
+  {
+    "firstName": "jijj",
+    "lastName": "nbhjbhb",
+    "email": "cjknsajk@gmail.com",
+    "addressStreet": "cahbjbac",
+    "addressCity": "nc ann",
+    "addressProvince": "msbcajbjc",
+    "TA": true,
+    "status": "Part Time",
+    "course": "1",
+    "studentNum": 264
   }
 ]

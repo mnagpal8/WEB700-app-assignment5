@@ -15,98 +15,143 @@
 const express = require('express');
 const collegeData = require('./modules/collegeData');
 const path = require('path');
+const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars');
+
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
-const bodyParser = require('body-parser');
-app.use(express.static(path.join(__dirname, "public")));
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// Route for the homepage
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'home.html'));
+// Define custom Handlebars helpers
+const hbs = exphbs.create({
+    extname: '.hbs',
+    defaultLayout: 'main',
+    helpers: {
+        navLink: function(url, options) {
+            return '<li' + 
+                ((url === app.locals.activeRoute) ? ' class="nav-item active"' : ' class="nav-item"') + 
+                '><a class="nav-link" href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function(lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            return (lvalue !== rvalue) ? options.inverse(this) : options.fn(this);
+        }
+    }
 });
 
-// Route for the about page
+// Set up Handlebars as the view engine
+app.engine('.hbs', hbs.engine);
+app.set('view engine', '.hbs');
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware to parse URL-encoded data
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware to set the active route for navigation
+app.use((req, res, next) => {
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    next();
+});
+
+// Define routes
+app.get('/', (req, res) => {
+    res.render('home', { title: 'Home' });
+});
+
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'about.html'));
 });
 
-// Route for the htmlDemo page
 app.get('/htmlDemo', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'htmlDemo.html'));
 });
 
-// Route for fetching a student by their student number
 app.get('/student/:num', (req, res) => {
     const studentNum = parseInt(req.params.num);
-    collegeData.getStudentByNum(studentNum)
-        .then(student => {
-            res.json(student);
+    Promise.all([collegeData.getStudentByNum(studentNum), collegeData.getCourses()])
+        .then(([student, courses]) => {
+            res.render('student', { student: student, courses: courses });
         })
+        .catch(err => res.status(404).json({ message: "no results" }));
+});
+
+app.post('/student/update', (req, res) => {
+    const studentData = req.body;
+    collegeData.updateStudent(studentData)
+        .then(() => res.redirect('/students'))
         .catch(err => {
-            res.status(404).json({ message: "no results" });
+            console.error('Error updating student:', err);
+            res.status(500).send('Error updating student');
         });
 });
 
-// Route for fetching all students, with an optional course query parameter
 app.get('/students', (req, res) => {
     const course = req.query.course;
     if (course) {
         collegeData.getStudentsByCourse(parseInt(course))
             .then(students => {
-                res.json(students);
+                res.render('students', { students: students });
             })
             .catch(err => {
-                res.status(404).json({ message: "no results" });
+                res.render('students', { message: "no results" });
             });
     } else {
         collegeData.getAllStudents()
             .then(students => {
-                res.json(students);
+                res.render('students', { students: students });
             })
             .catch(err => {
-                res.status(404).json({ message: "no results" });
+                res.render('students', { message: "no results" });
             });
     }
 });
 
-// Route for fetching all TAs
 app.get('/tas', (req, res) => {
     collegeData.getTAs()
-        .then(tas => {
-            res.json(tas);
-        })
-        .catch(err => {
-            res.status(404).json({ message: "no results" });
-        });
+        .then(tas => res.json(tas))
+        .catch(err => res.status(404).json({ message: "no results" }));
 });
 
-// Route for fetching all courses
 app.get('/courses', (req, res) => {
     collegeData.getCourses()
         .then(courses => {
-            res.json(courses);
+            res.render('courses', { courses: courses });
         })
         .catch(err => {
-            res.status(404).json({ message: "no results" });
+            res.render('courses', { message: "no results" });
         });
+});
+
+app.get('/course/:id', (req, res) => {
+    const courseId = req.params.id;
+    collegeData.getCourseById(courseId)
+        .then(course => res.render('course', { course: course }))
+        .catch(err => res.status(404).render('course', { message: "Course not found" }));
 });
 
 app.get("/students/add", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "addStudent.html"));
 });
+
 app.post('/students/add', (req, res) => {
     collegeData.addStudent(req.body)
-        .then(() => {
-            res.redirect('/students'); // Redirect to the students page after adding student
-        })
+        .then(() => res.redirect('/students'))
         .catch(err => {
             console.error('Error adding student:', err);
-            // Handle error appropriately, e.g., render an error page or redirect to an error route
             res.status(500).send('Error adding student');
         });
 });
-
+app.post('/student/update', (req, res) => {
+    collegeData.updateStudent(req.body)
+        .then(() => res.redirect('/students'))
+        .catch(err => {
+            console.error('Error updating student:', err);
+            res.status(500).send('Error updating student');
+        });
+});
 // Custom 404 page for unmatched routes
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
