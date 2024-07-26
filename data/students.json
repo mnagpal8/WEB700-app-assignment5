@@ -1,6 +1,6 @@
 [
   {
-    "studentNum": 1,
+    "studentNum": "1",
     "firstName": "Foster",
     "lastName": "Thorburn",
     "email": "fthorburn0@mySeneca.ca",
@@ -8,32 +8,32 @@
     "addressCity": "Toronto",
     "addressProvince": "ON",
     "TA": true,
-    "status": "Full Time",
-    "course": 2
+    "status": "Part Time",
+    "course": "1"
   },
   {
-    "studentNum": 2,
+    "studentNum": "2",
     "firstName": "Emmy",
-    "lastName": "Trehearne",
+    "lastName": "Trehearne A",
     "email": "etrehearne1@mySeneca.ca",
     "addressStreet": "66965 Shelley Circle",
     "addressCity": "Toronto",
     "addressProvince": "ON",
     "TA": true,
     "status": "Full Time",
-    "course": 2
+    "course": "1"
   },
   {
-    "studentNum": 3,
+    "studentNum": "3",
     "firstName": "Zonnya",
-    "lastName": "Laytham",
+    "lastName": "BISHT",
     "email": "zlaytham2@mySeneca.ca",
     "addressStreet": "24665 Scoville Parkway",
     "addressCity": "Toronto",
     "addressProvince": "ON",
     "TA": true,
     "status": "Full Time",
-    "course": 2
+    "course": "1"
   },
   {
     "studentNum": 4,
@@ -48,8 +48,8 @@
     "course": 4
   },
   {
-    "studentNum": 5,
-    "firstName": "Ysabel",
+    "studentNum": "5",
+    "firstName": "Jeff",
     "lastName": "Collyns",
     "email": "ycollyns4@mySeneca.ca",
     "addressStreet": "529 Grim Lane",
@@ -57,7 +57,7 @@
     "addressProvince": "ON",
     "TA": true,
     "status": "Full Time",
-    "course": 6
+    "course": "1"
   },
   {
     "studentNum": 6,
@@ -2976,16 +2976,16 @@
     "course": 6
   },
   {
-    "studentNum": 249,
+    "studentNum": "249",
     "firstName": "Cassy",
-    "lastName": "Colquyte",
+    "lastName": "BISHT",
     "email": "ccolquyte62@mySeneca.ca",
     "addressStreet": "7745 Sachs Road",
     "addressCity": "Toronto",
     "addressProvince": "ON",
     "TA": false,
     "status": "Full Time",
-    "course": 7
+    "course": "1"
   },
   {
     "studentNum": 250,
