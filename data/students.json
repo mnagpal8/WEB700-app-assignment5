@@ -3169,5 +3169,17 @@
     "status": "Part Time",
     "course": "1",
     "studentNum": 264
+  },
+  {
+    "firstName": "btfx",
+    "lastName": "bst",
+    "email": "bsbsz@gmail.com",
+    "addressStreet": "wcha",
+    "addressCity": "uhiuhi",
+    "addressProvince": "iuhuh",
+    "TA": true,
+    "status": "Full Time",
+    "course": "1",
+    "studentNum": 265
   }
 ]

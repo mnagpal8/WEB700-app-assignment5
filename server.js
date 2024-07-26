@@ -11,7 +11,6 @@
 *
 *******************************************************************************
 */
-
 const express = require('express');
 const collegeData = require('./modules/collegeData');
 const path = require('path');
@@ -132,8 +131,9 @@ app.get('/course/:id', (req, res) => {
         .catch(err => res.status(404).render('course', { message: "Course not found" }));
 });
 
-app.get("/students/add", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "addStudent.html"));
+// Update this route to render the addStudent.hbs view
+app.get('/students/add', (req, res) => {
+    res.render('addStudent');
 });
 
 app.post('/students/add', (req, res) => {
@@ -144,14 +144,7 @@ app.post('/students/add', (req, res) => {
             res.status(500).send('Error adding student');
         });
 });
-app.post('/student/update', (req, res) => {
-    collegeData.updateStudent(req.body)
-        .then(() => res.redirect('/students'))
-        .catch(err => {
-            console.error('Error updating student:', err);
-            res.status(500).send('Error updating student');
-        });
-});
+
 // Custom 404 page for unmatched routes
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
