@@ -148,7 +148,7 @@ exports.updateStudent = (studentData) => {
             ...studentData,
             TA: studentData.TA === 'on' ? true : false // Convert checkbox value
         };
-
+        resolve();
         // Save updated student data
         fs.writeFile('./data/students.json', JSON.stringify(dataCollection.students, null, 2), (err) => {
             if (err) {
