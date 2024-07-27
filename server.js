@@ -20,7 +20,7 @@ const exphbs = require('express-handlebars');
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 
-// Define custom Handlebars helpers
+// Configure express-handlebars with custom helpers
 const hbs = exphbs.create({
     extname: '.hbs',
     defaultLayout: 'main',
@@ -41,6 +41,7 @@ const hbs = exphbs.create({
 // Set up Handlebars as the view engine
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,7 +52,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware to set the active route for navigation
 app.use((req, res, next) => {
     let route = req.path.substring(1);
-    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.)/, "") : route.replace(/\/(.)/, ""));
     next();
 });
 
@@ -61,20 +62,26 @@ app.get('/', (req, res) => {
 });
 
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'about.html'));
+    res.render('about', { title: 'About' });
 });
 
 app.get('/htmlDemo', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'htmlDemo.html'));
+    res.render('htmlDemo', { title: 'HTML Demo' });
 });
 
 app.get('/student/:num', (req, res) => {
     const studentNum = parseInt(req.params.num);
+    console.log("Fetching student with studentNum:", studentNum);
+
     Promise.all([collegeData.getStudentByNum(studentNum), collegeData.getCourses()])
         .then(([student, courses]) => {
+            console.log("Student data and courses fetched successfully");
             res.render('student', { student: student, courses: courses });
         })
-        .catch(err => res.status(404).json({ message: "no results" }));
+        .catch(err => {
+            console.error("Error fetching student or courses:", err);
+            res.status(404).json({ message: "no results" });
+        });
 });
 
 app.post('/student/update', (req, res) => {
@@ -108,12 +115,6 @@ app.get('/students', (req, res) => {
     }
 });
 
-app.get('/tas', (req, res) => {
-    collegeData.getTAs()
-        .then(tas => res.json(tas))
-        .catch(err => res.status(404).json({ message: "no results" }));
-});
-
 app.get('/courses', (req, res) => {
     collegeData.getCourses()
         .then(courses => {
@@ -124,39 +125,34 @@ app.get('/courses', (req, res) => {
         });
 });
 
-app.get('/course/:id', (req, res) => {
-    const courseId = req.params.id;
-    collegeData.getCourseById(courseId)
-        .then(course => res.render('course', { course: course }))
-        .catch(err => res.status(404).render('course', { message: "Course not found" }));
-});
-
-// Update this route to render the addStudent.hbs view
 app.get('/students/add', (req, res) => {
-    res.render('addStudent');
+    res.render('addStudent', { title: 'Add Student' });
 });
 
 app.post('/students/add', (req, res) => {
-    collegeData.addStudent(req.body)
-        .then(() => res.redirect('/students'))
+
+    collegeData.addStudent(studentData)
+        .then(() => {
+            res.redirect('/students');
+        })
         .catch(err => {
             console.error('Error adding student:', err);
             res.status(500).send('Error adding student');
         });
 });
 
-// Custom 404 page for unmatched routes
+// 404 route
 app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+    res.status(404).send("Page Not Found");
 });
 
-// Start the server only if data initialization is successful
+// Initialize data and start server
 collegeData.initialize()
     .then(() => {
         app.listen(HTTP_PORT, () => {
-            console.log(`Server listening on port ${HTTP_PORT}`);
+            console.log(`Server listening on port: ${HTTP_PORT}`);
         });
     })
     .catch(err => {
-        console.error(`Failed to initialize data: ${err}`);
+        console.log(`Failed to initialize data: ${err}`);
     });
