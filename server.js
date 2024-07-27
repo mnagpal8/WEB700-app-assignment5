@@ -131,6 +131,7 @@ app.get('/students/add', (req, res) => {
 
 app.post('/students/add', (req, res) => {
 
+    let studentData=req.body; 
     collegeData.addStudent(studentData)
         .then(() => {
             res.redirect('/students');
